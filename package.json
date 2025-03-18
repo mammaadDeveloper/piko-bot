@@ -1,6 +1,6 @@
 {
   "name": "piko-bot",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "A lovely bot for Discord.",
   "main": "index.js",
   "scripts": {
