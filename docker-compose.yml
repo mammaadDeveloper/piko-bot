@@ -1,0 +1,131 @@
+version: '3.8'
+
+services:
+  # Bot service
+  bot:
+    build:
+      context: ./apps/bot
+    container_name: bot
+    ports:
+      - "3001:3000" # Mapping to port 3001 on host
+    depends_on:
+      - postgres
+      - redis
+      - rabbitmq
+    environment:
+      - DATABASE_URL=postgresql://user:password@postgres:5432/bot_db
+      - REDIS_URL=redis://redis:6379
+      - RABBITMQ_URL=amqp://rabbitmq:5672
+      - NODE_ENV=production
+
+  # API service
+  api:
+    build:
+      context: ./apps/api
+    container_name: api
+    ports:
+      - "3002:3000" # Mapping to port 3002 on host
+    depends_on:
+      - postgres
+      - redis
+      - rabbitmq
+    environment:
+      - DATABASE_URL=postgresql://user:password@postgres:5432/api_db
+      - REDIS_URL=redis://redis:6379
+      - RABBITMQ_URL=amqp://rabbitmq:5672
+      - NODE_ENV=production
+
+  # Worker service
+  worker:
+    build:
+      context: ./apps/worker
+    container_name: worker
+    ports:
+      - "3003:3000" # Mapping to port 3004 on host
+    depends_on:
+      - postgres
+      - redis
+      - rabbitmq
+    environment:
+      - DATABASE_URL=postgresql://user:password@postgres:5432/worker_db
+      - REDIS_URL=redis://redis:6379
+      - RABBITMQ_URL=amqp://rabbitmq:5672
+      - NODE_ENV=production
+
+  # Web (Next.js) service
+  web:
+    build:
+      context: ./apps/web
+    container_name: web
+    ports:
+      - "3004:3000" # Mapping to port 3003 on host
+    depends_on:
+      - api
+    environment:
+      - NODE_ENV=production
+
+  # PostgreSQL service
+  postgres:
+    image: postgres:latest
+    container_name: postgres
+    environment:
+      - POSTGRES_USER=user
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_DB=default_db
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+  # Redis service
+  redis:
+    image: redis:latest
+    container_name: redis
+    ports:
+      - "6379:6379"
+
+  # RabbitMQ service
+  rabbitmq:
+    image: rabbitmq:management
+    container_name: rabbitmq
+    ports:
+      - "15672:15672"  # RabbitMQ Management UI
+      - "5672:5672"    # RabbitMQ AMQP port
+
+  # PGAdmin service
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: pgadmin
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=admin@admin.com
+      - PGADMIN_DEFAULT_PASSWORD=admin
+    ports:
+      - "5050:80" # PGAdmin UI on port 5050
+
+  # Sentry service (optional, you can configure Sentry if required)
+  sentry:
+    image: sentry:latest
+    container_name: sentry
+    environment:
+      - SENTRY_SECRET_KEY=secret_key
+    ports:
+      - "9000:9000"
+
+  # ClickHouse service
+  clickhouse:
+    image: yandex/clickhouse-server:latest
+    container_name: clickhouse
+    environment:
+      - CLICKHOUSE_DB=default
+    ports:
+      - "8123:8123"
+      - "9000:9000"
+
+volumes:
+  postgres-data:
+  redis-data:
+
+networks:
+  default:
+    external:
+      name: my-network
