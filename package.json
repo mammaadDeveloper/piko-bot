@@ -1,10 +1,20 @@
 {
   "name": "piko-bot",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "description": "A lovely bot for Discord.",
   "main": "index.js",
   "scripts": {
-    "test": "echo 'test!'"
+    "start:bot": "cd apps/bot && npm run start",
+    "start:api": "cd apps/api && npm run start",
+    "start:worker": "cd apps/worker && npm run start",
+    "start": "concurrently \"npm run start:bot\" \"npm run start:api\" \"npm run start:worker\"",
+    "test": "echo 'test!'",
+    "prepare": "husky",
+    "commit": "bunx cz",
+    "lint": "eslint \"apps/**/*.{ts,tsx}\" --fix",
+    "format": "prettier --write \"apps/**/*.{ts,tsx}\"",
+    "validate": "npm run lint && npm run format",
+    "release": "standard-version"
   },
   "repository": {
     "type": "git",
@@ -21,5 +31,22 @@
   "bugs": {
     "url": "https://github.com/mammaadDeveloper/piko-bot/issues"
   },
-  "homepage": "https://github.com/mammaadDeveloper/piko-bot#readme"
+  "homepage": "https://github.com/mammaadDeveloper/piko-bot#readme",
+  "dependencies": {
+    "@commitlint/cli": "^19.8.0",
+    "@commitlint/config-conventional": "^19.8.0",
+    "concurrently": "^9.1.2",
+    "husky": "^9.1.7"
+  },
+  "devDependencies": {
+    "commitizen": "^4.3.1",
+    "cz-conventional-changelog": "^3.3.0",
+    "prettier": "^3.5.3",
+    "standard-version": "^9.5.0"
+  },
+  "config": {
+    "commitizen": {
+      "path": "cz-conventional-changelog"
+    }
+  }
 }
